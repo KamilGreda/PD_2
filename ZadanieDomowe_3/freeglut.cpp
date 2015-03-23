@@ -9,7 +9,7 @@ class C_FIGURA
 {
 public:
 
-	enum e_ksztalt
+	enum e_ksztalt //potrzebne do przekazania funkcji draw, co ma rysowac
 	{
 		circle = 0, square = 4, heksagon = 6
 	};
@@ -17,15 +17,15 @@ public:
 	float x, y;
 	float r, g, b;
 
-	e_ksztalt shape;
+	e_ksztalt shape; //przechowuje informacje o ksztalcie
 
-	C_FIGURA *next;
+	C_FIGURA *next; //wskazniki na nastepnego i poprzedniego bohatera, umozliwiaja przelaczanie
 	C_FIGURA *prev;
 	
 
 	void Draw(C_FIGURA::e_ksztalt ksztalt);
 
-	C_FIGURA(float _x, float _y)//WSZYSCY SA NIEBIESKIMI KWADRATAMI
+	C_FIGURA(float _x, float _y)//WSZYSCY SA ZIELONYMI KWADRATAMI
 	{
 
 		x = _x;
@@ -34,32 +34,26 @@ public:
 		this->zmien_kolor();
 	}
 
-	void zmien_kolor() //zmienia kolor na niebieski
+	void zmien_kolor() //zmienia kolor na zielony
 	{
 		r = 0;
-		g = 0;
-		b = 1;
+		g = 1;
+		b = 0;
 	}
 
 };
 
-C_FIGURA lewa(-2.0, 0);
+C_FIGURA lewa(-2.0, 0); //globalna definicja figur
 C_FIGURA srodkowa(0.0, 0);
 C_FIGURA prawa(2.0, 0);
 
 C_FIGURA *aktualna = &lewa;//wskaznik na aktualnego bohatera
 
-
-
-bool byl_pierwszy_obieg = 0;
-
-
 using namespace std;
 
-void utworz_powiazania()
+//tworzy zapetlona strukture danych
+void utworz_powiazania() 
 {
-	
-
 	lewa.next = &srodkowa;
 	lewa.prev = &prawa;
 
@@ -72,33 +66,8 @@ void utworz_powiazania()
 }
 
 
-
-float proportion = (float)glutWindowWidth / (float)glutWindowHeight;
-
-/* GLUT callback Handlers */
-static void resize(int width, int height)
-{
-	const float ar = (float)width / (float)height;
-	proportion = ar;
-
-	glViewport(0, 0, width, height);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
-	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-}
-
-static void idle(void)
-{
-	glutPostRedisplay();
-}
-
-
-void C_FIGURA:: Draw(C_FIGURA::e_ksztalt ksztalt)
+//rysuje rozne figury zaleznie od parametru, umozliwia to zapamietanie ksztaltow bohaterow
+void C_FIGURA::Draw(C_FIGURA::e_ksztalt ksztalt)
 {
 
 	switch (ksztalt)
@@ -112,10 +81,8 @@ void C_FIGURA:: Draw(C_FIGURA::e_ksztalt ksztalt)
 		glPushMatrix();
 
 
+
 		glTranslated(x, y, 0);
-		glRotated(0, 1.0, 0.0, 0.0);
-		glRotated(0, 0.0, 1.0, 0.0);
-		glRotated(0, 0.0, 0.0, 1.0);
 
 		glColor3d(r, g, b);
 
@@ -138,9 +105,7 @@ void C_FIGURA:: Draw(C_FIGURA::e_ksztalt ksztalt)
 
 		glPushMatrix();
 		glTranslated(x, y, 0);
-		glRotated(0, 1.0, 0.0, 0.0);
-		glRotated(0, 0.0, 1.0, 0.0);
-		glRotated(0, 0.0, 0.0, 1.0);
+
 
 		glColor3d(r, g, b);
 
@@ -165,10 +130,6 @@ void C_FIGURA:: Draw(C_FIGURA::e_ksztalt ksztalt)
 		glPushMatrix();
 
 		glTranslated(x, y, 0);
-		glRotated(0, 1.0, 0.0, 0.0);
-		glRotated(0, 0.0, 1.0, 0.0);
-		glRotated(0, 0.0, 0.0, 1.0);
-
 
 		glColor3d(r, g, b);
 
@@ -186,9 +147,31 @@ void C_FIGURA:: Draw(C_FIGURA::e_ksztalt ksztalt)
 		break;
 	}
 	}
-	
+
 }
 
+float proportion = (float)glutWindowWidth / (float)glutWindowHeight;
+
+static void resize(int width, int height)
+{
+	const float ar = (float)width / (float)height;
+	proportion = ar;
+
+	glViewport(0, 0, width, height);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
+	gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
+static void idle(void)
+{
+	glutPostRedisplay();
+}
 
 void keyboard(unsigned char key, int x, int y)
 {
@@ -250,43 +233,56 @@ static void display(void)
 
 	glPushMatrix();
 	
-	aktualna->r = 0.1; //zmiana koloru aktualnego bohatera
-	aktualna->g = 0.05;
-	aktualna->b = 0.0;
 
 	lewa.Draw(lewa.shape);
 	srodkowa.Draw(srodkowa.shape);
 	prawa.Draw(prawa.shape);
 
-
 	glutKeyboardFunc(keyboard);
+	
 	
 	glPopMatrix();
 
 	glutSwapBuffers();
 }
 
+void Timer(int value)
+{
+	value++;
+
+	if (value % 2)
+	{
+	aktualna->r = 0;
+	aktualna->g = 0;
+	aktualna->b = 1;
+	}
+	else
+	{
+		aktualna->b = 0;
+		aktualna->r = 1;
+	}
+	// wyœwietlenie sceny
+	glutPostRedisplay();
+
+	// nastêpne wywo³anie funkcji timera
+	glutTimerFunc(432, Timer, value);
+}
 
 int main(int argc, char *argv[])
 {
 
 	utworz_powiazania(); //nadaje wartosci wskaznikom w obiektach klasy C_FIGURA 
 	
-
-
 	glutInitWindowSize(glutWindowWidth, glutWindowHeight);
 	glutInitWindowPosition(40, 40);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE);
 
-
 	glutCreateWindow("OpenGLUT Shapes"); //tworzy okno, jak nazwa mowi
-
 
 	glutPostRedisplay();
 	glutReshapeFunc(resize);
 	glutDisplayFunc(display);
-
 
 	glutIdleFunc(idle);
 
@@ -304,8 +300,7 @@ int main(int argc, char *argv[])
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
 
-
-
+	glutTimerFunc(432, Timer, 0);
 
 	glutMainLoop();
 

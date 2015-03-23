@@ -11,6 +11,10 @@ float proportion = (float)glutWindowWidth / (float)glutWindowHeight;
  GLUT callback Handlers 
 static void resize(int width, int height)
 {
+glRotated(0, 1.0, 0.0, 0.0);
+glRotated(0, 0.0, 1.0, 0.0);
+glRotated(0, 0.0, 0.0, 1.0);
+
 	const float ar = (float)width / (float)height;
 	proportion = ar;
 
